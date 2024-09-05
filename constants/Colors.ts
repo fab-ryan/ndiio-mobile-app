@@ -35,7 +35,7 @@ export const Colors: ColorsInterface = {
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
-    primary: '#0a7ea4',
+    primary: '#3669C9',
     secondary: '#3669C9',
     red: '#ff0000',
     light_grey: '#838589',

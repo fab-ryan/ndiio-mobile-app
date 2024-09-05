@@ -212,6 +212,36 @@ export const TextInput = <T extends FieldValues = FieldValues>({
   );
 };
 
+export const SearchInput = ({
+  control,
+  placeholder,
+}: {
+  placeholder?: string;
+  control: any;
+}) => {
+  return (
+    <View style={styles.searchContainer}>
+      <TextInput
+        control={control}
+        name='search'
+        label=''
+        placeholder={placeholder}
+        style={{
+          borderColor: 'transparent',
+          borderWidth: 0,
+        }}
+      />
+      <Pressable style={styles.searchIcon}>
+        <Icon
+          name='search'
+          type={IconsEnum.feather}
+          size={20}
+          color='#0C1A30'
+        />
+      </Pressable>
+    </View>
+  );
+};
 const styles = StyleSheet.create({
   inputContainer: {
     borderWidth: 0.5,
@@ -224,5 +254,17 @@ const styles = StyleSheet.create({
     color: '#F00',
     marginTop: 5,
     fontSize: 14,
+  },
+  searchContainer: {
+    width: '100%',
+    position: 'relative',
+    borderWidth: 0.2,
+    borderColor: Colors.light.light_grey,
+    borderRadius: 10,
+  },
+  searchIcon: {
+    position: 'absolute',
+    right: 20,
+    top: 13,
   },
 });

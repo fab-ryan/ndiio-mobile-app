@@ -1,8 +1,8 @@
 import {
-  View as DefaultView,
   type ViewProps,
   SafeAreaView as DefaultSafeAreaView,
 } from 'react-native';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { useThemeColor } from '@/hooks/useThemeColor';
 
@@ -23,7 +23,10 @@ export function View({
   );
 
   return (
-    <DefaultView
+    <Animated.View
+      entering={FadeIn}
+      exiting={FadeOut}
+
       style={[{ backgroundColor }, style]}
       {...otherProps}
     />
