@@ -1,71 +1,122 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { FlatList, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { Text, View } from '@/components';
+import {
+  View,
+  ScrollView,
+  SafeAreaView,
+  SearchInput,
+  Icon,
+} from '@/components';
+import {
+  TopBar,
+  AdvertiseCard,
+  SectionTitle,
+  CategoryCard,
+  ProductCard,
+} from '@/shared';
+import { useForm } from '@/hooks';
+import { advertiseData, categoriesData, productsData } from '@/utils';
+import { CategoryContainer } from '@/containers';
 
 export default function HomeScreen() {
+  const { control } = useForm({
+    search: '',
+  });
+
+  let _style;
+  if (Platform.OS === 'ios') {
+    _style = {
+      marginBottom: 0,
+    };
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }
+    <SafeAreaView
+      style={{
+        flex: 1,
+      }}
     >
-      <View style={styles.titleContainer}>
-        <Text type='title'>Welcome!</Text>
-        <HelloWave />
-      </View>
-      <View style={styles.stepContainer}>
-        <Text type='subtitle'>Step 1: Try it</Text>
-        <Text>
-          Edit <Text type='defaultSemiBold'>app/(tabs)/index.tsx</Text> to see
-          changes. Press{' '}
-          <Text type='defaultSemiBold'>
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </Text>{' '}
-          to open developer tools.
-        </Text>
-      </View>
-      <View style={styles.stepContainer}>
-        <Text type='subtitle'>Step 2: Explore</Text>
-        <Text>
-          Tap the Explore tab to learn more about what's included in this
-          starter app.
-        </Text>
-      </View>
-      <View style={styles.stepContainer}>
-        <Text type='subtitle'>Step 3: Get a fresh start</Text>
-        <Text>
-          When you're ready, run{' '}
-          <Text type='defaultSemiBold'>npm run reset-project</Text> to get a
-          fresh <Text type='defaultSemiBold'>app</Text> directory. This will
-          move the current <Text type='defaultSemiBold'>app</Text> to{' '}
-          <Text type='defaultSemiBold'>app-example</Text>.
-        </Text>
-      </View>
-    </ParallaxScrollView>
+      <TopBar />
+      <ScrollView style={{ ..._style }}>
+        <View style={styles.container}>
+          <SearchInput
+            control={control}
+            placeholder='Search for products'
+          />
+
+          <View
+            style={{
+              width: '100%',
+              marginTop: 20,
+            }}
+          >
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{
+                marginTop: 10,
+                marginBottom: 10,
+                width: '100%',
+                overflow: 'hidden',
+              }}
+              data={advertiseData}
+              renderItem={({ item }) => (
+                <AdvertiseCard
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  image={item.image}
+                />
+              )}
+            />
+          </View>
+          <CategoryContainer categoriesData={categoriesData} />
+        </View>
+        <View style={styles.productSection}>
+          <SectionTitle
+            title='Popular Products'
+            onPress={() => {}}
+          />
+          <View
+            style={{
+              width: '100%',
+              marginTop: 10,
+              backgroundColor: 'transparent',
+            }}
+          >
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+
+              data={productsData}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => {}}>
+                  <ProductCard product={item} />
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    gap: 8,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  categories: {
+    width: '100%',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+
+  productSection: {
+    width: '100%',
+    marginTop: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    backgroundColor: '#f5f5f5',
   },
 });
