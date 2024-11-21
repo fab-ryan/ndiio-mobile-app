@@ -1,9 +1,10 @@
-import { Icon, View } from '@/src/components';
+import { Image, View } from '@/components';
 import { SectionTitle, CategoryCard } from '@/src/shared';
-import { CategoriesInterface } from '@/src/utils';
+import { CategoriesInterface, imageBaseUrl } from '@/src/utils';
 import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { Categories } from '@/types/categoryTyes';
 interface CategoryContainerProps {
-  categoriesData: CategoriesInterface[];
+  categoriesData: Categories[];
   onPress: () => void;
 }
 export const CategoryContainer = ({
@@ -29,13 +30,15 @@ export const CategoryContainer = ({
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => {}}>
               <CategoryCard
-                title={item.title}
-                bg_color={item.bg_color}
+                title={item.category.name}
+                bg_color={generateRandomColor()}
               >
-                <Icon
-                  name={item.icon.name}
-                  type={item.icon.icon_type}
-                  color={item.icon.color}
+                <Image
+                  source={{ uri: imageBaseUrl(item.category.category_icon) }}
+                  style={{
+                    width: 70,
+                    height: 70,
+                  }}
                 />
               </CategoryCard>
             </TouchableOpacity>
@@ -45,7 +48,9 @@ export const CategoryContainer = ({
     </View>
   );
 };
-
+const generateRandomColor = () => {
+  return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+};
 const styles = StyleSheet.create({
   categories: {
     marginTop: 5,

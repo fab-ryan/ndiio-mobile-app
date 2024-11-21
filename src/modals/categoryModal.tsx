@@ -1,7 +1,7 @@
-import { Modal, View, Text, Icon } from '@/src/components';
+import { Modal, View, Text, Icon, Image } from '@/src/components';
 import { width } from '@/src/constants';
 import { CategoryCard } from '@/src/shared';
-import { categoriesData, IconsEnum } from '@/src/utils';
+import { IconsEnum, imageBaseUrl } from '@/src/utils';
 import { useEffect, useState } from 'react';
 import {
   FlatList,
@@ -9,6 +9,8 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
+import { useGetCategoriesQuery } from '@/redux';
+import { useSelector } from '../hooks';
 
 interface CategoryModalProps {
   isVisible: boolean;
@@ -17,11 +19,15 @@ interface CategoryModalProps {
 
 export const CategoryModal = ({ isVisible, onClose }: CategoryModalProps) => {
   const [numColumns, setNumColumns] = useState(1);
+ useGetCategoriesQuery();
+
+  const {categories} = useSelector((state)=>state.category);
 
   useEffect(() => {
-    const columnCount = Math.floor(width / 80); 
+    const columnCount = Math.floor(width / 120);
     setNumColumns(columnCount);
   }, []);
+
   return (
     <Modal
       visible={isVisible}
@@ -45,21 +51,26 @@ export const CategoryModal = ({ isVisible, onClose }: CategoryModalProps) => {
         </View>
         <View style={styles.cardBody}>
           <FlatList
-          horizontal={false}
-          numColumns={numColumns}
+            horizontal={false}
+            numColumns={numColumns}
             showsHorizontalScrollIndicator={false}
-            data={categoriesData}
+            showsVerticalScrollIndicator={false}
+            data={categories ?? []}
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => {}}>
                 <CategoryCard
-                  title={item.title}
-                  bg_color={item.bg_color}
-                  padding={5}
+                  title={item?.category?.name}
+                  bg_color={generateRandomColor()}
+                  padding={10}
+                  height={65}
+                  width={65}
                 >
-                  <Icon
-                    name={item.icon.name}
-                    type={item.icon.icon_type}
-                    color={item.icon.color}
+                  <Image
+                    source={{ uri: imageBaseUrl(item.category.category_icon) }}
+                    style={{
+                      width: 60,
+                      height: 60,
+                    }}
                   />
                 </CategoryCard>
               </TouchableOpacity>
@@ -69,6 +80,10 @@ export const CategoryModal = ({ isVisible, onClose }: CategoryModalProps) => {
       </View>
     </Modal>
   );
+};
+
+const generateRandomColor = () => {
+  return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
 };
 
 const styles = StyleSheet.create({
