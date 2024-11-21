@@ -1,9 +1,14 @@
 import { FlatList, Platform, StyleSheet } from 'react-native';
 
-import { View, ScrollView, SafeAreaView, SearchInput } from '@/src/components';
+import {
+  View,
+  ScrollView,
+  SafeAreaView,
+  SearchInput,
+} from '@/src/components';
 import { TopBar, AdvertiseCard, BannerCard } from '@/src/shared';
-import { useForm } from '@/src/hooks';
-import { advertiseData, categoriesData, productsData } from '@/src/utils';
+import { useForm, useSelector } from '@/src/hooks';
+import {   productsData } from '@/src/utils';
 import {
   BestSellerContainer,
   CategoryContainer,
@@ -12,9 +17,13 @@ import {
 } from '@/src/containers';
 import { useState } from 'react';
 import { CategoryModal } from '@/src/modals';
+import { useGetCategoriesQuery, useGetSliderQuery } from '@/redux';
 
 export default function HomeScreen() {
   const [visibleAllCategories, setVisibleAllCategories] = useState(false);
+  const { data: slidesData } = useGetSliderQuery();
+  useGetCategoriesQuery();
+  const {categories} = useSelector((state)=>state.category);
   const { control } = useForm({
     search: '',
   });
@@ -53,20 +62,13 @@ export default function HomeScreen() {
                 marginTop: 10,
                 marginBottom: 10,
                 width: '100%',
-                overflow: 'hidden',
               }}
-              data={advertiseData}
-              renderItem={({ item }) => (
-                <AdvertiseCard
-                  title={item.title}
-                  subtitle={item.subtitle}
-                  image={item.image}
-                />
-              )}
+              data={slidesData?.data.slider ?? []}
+              renderItem={({ item }) => <AdvertiseCard {...item} />}
             />
           </View>
           <CategoryContainer
-            categoriesData={categoriesData}
+            categoriesData={categories ?? []}
             onPress={() => setVisibleAllCategories(true)}
           />
         </View>

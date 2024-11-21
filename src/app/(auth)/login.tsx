@@ -1,13 +1,21 @@
 import { StyleSheet } from 'react-native';
-import { View, Text, SafeAreaView, TextInput, Button } from '@/src/components';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  TextInput,
+  Button,
+  Loader,
+} from '@/src/components';
 import { ArrowIconButton } from '@/src/shared';
 import { useThemeColor, useForm } from '@/src/hooks';
 import { LoginInterfaceInputs } from '@/src/types';
 import { authLoginSchema } from '@/src/schemas';
 import { Link, useRouter } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function LoginScreen() {
+  const [loadingScreen, setLoading] = useState<boolean>(true);
   const router = useRouter();
   const {
     handleSubmit,
@@ -23,12 +31,17 @@ export default function LoginScreen() {
   );
 
   useEffect(() => {
-    router.navigate('/(tabs)/');
+    setLoading(false);
+    router.navigate('/(tabs)');
+
   }, [router]);
 
   const handleLogin = (data: any) => {
     router.navigate('/(tabs)');
   };
+
+
+
   return (
     <SafeAreaView
       style={{
@@ -36,7 +49,7 @@ export default function LoginScreen() {
       }}
     >
       <ArrowIconButton />
-
+      <Loader loading={loadingScreen} />
       <View style={styles.headerTitleContainer}>
         <Text style={styles.headerTitle}>Welcome back to Ndiio.com</Text>
         <Text

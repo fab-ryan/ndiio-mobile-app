@@ -10,6 +10,10 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/src/hooks/useColorScheme';
+import { PaperProvider } from 'react-native-paper';
+import { Provider } from 'react-redux';
+import { store } from '../redux/config';
+import { CustomToast } from '../components/ThemedToast';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -31,28 +35,33 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen
-          name='(root)'
-          options={{ headerShown: false }}
-        />
+    <Provider store={store}>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <PaperProvider>
+          <CustomToast />
+          <Stack>
+            <Stack.Screen
+              name='(tabs)'
+              options={{ headerShown: false }}
+            />
 
-        <Stack.Screen
-          name='(tabs)'
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name='+not-found' />
-        <Stack.Screen
-          name='(auth)'
-          options={{ headerShown: false }}
-        />
+            {/* <Stack.Screen
+              name='(root)'
+              options={{ headerShown: false }}
+            /> */}
+            <Stack.Screen name='+not-found' />
+            <Stack.Screen
+              name='(auth)'
+              options={{ headerShown: false }}
+            />
 
-        <Stack.Screen
-          name='product'
-          options={{ headerShown: false }}
-        />
-      </Stack>
-    </ThemeProvider>
+            <Stack.Screen
+              name='product'
+              options={{ headerShown: false }}
+            />
+          </Stack>
+        </PaperProvider>
+      </ThemeProvider>
+    </Provider>
   );
 }

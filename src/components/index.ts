@@ -7,3 +7,4 @@ export * from './ThemedInput';
 export * from './ParallaxScrollView';
 export * from './ThemedModal';
 export * from './ThemedSwiper';
+export * from  './ThemedLoader'

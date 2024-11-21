@@ -11,6 +11,16 @@ import {
 import * as React from 'react';
 import { StyleProp, TextStyle } from 'react-native';
 
+import {
+  FetchArgs,
+  FetchBaseQueryError,
+  fetchBaseQuery,
+} from '@reduxjs/toolkit/query/react';
+
+import { BaseQueryFn, createApi } from '@reduxjs/toolkit/query';
+
+import { getToken, removeToken } from './storage';
+
 export enum IconsEnum {
   fa = 'fa',
   feather = 'feather',
@@ -71,3 +81,51 @@ export async function setOnboardingStatus(status: boolean) {
 export async function clearSecureData() {
   await removeSecureData('onboardingStatus');
 }
+
+export const baseUrl: NonNullable<string | undefined> =
+  process.env.EXPO_PUBLIC_API_URL + 'api/v1' || 'http://localhost:3200' ;
+
+
+  export const imageBaseUrl: (url: string) => string = (url: string) => {
+    const pureUrl = baseUrl.replace('/api/v1', '');
+    return `${pureUrl}/uploads/${url}`;
+  }
+const baseQuery = fetchBaseQuery({
+  baseUrl: `${baseUrl}/api/v1`,
+  prepareHeaders: async (headers, { getState }) => {
+    try {
+      const token = await new Promise((resolve, reject) => {
+        getToken((value) => {
+          if (value) {
+            resolve(value);
+          } else {
+            reject(new Error('Token not found'));
+          }
+        });
+      });
+
+      headers.set('Authorization', `Bearer ${token}`);
+      return headers;
+    } catch (error) {
+      return headers;
+    }
+  },
+});
+
+export const fetchBaseQueryWithToken: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions);
+  if (result.error && result.error?.status === 401) {
+    await removeToken();
+  }
+  return result;
+};
+
+export const baseApi = createApi({
+  baseQuery: fetchBaseQueryWithToken,
+  endpoints: () => ({}),
+  reducerPath: 'baseApi',
+});

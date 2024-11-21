@@ -1,26 +1,30 @@
 import { View, Text, ImageBackground } from '@/src/components';
 import { useThemeColor } from '@/src/hooks';
 import { StyleSheet } from 'react-native';
+import { Slider } from '../types';
+import { Colors } from '../constants';
 
-interface AdvertiseCardProps {
+interface AdvertiseCardProps extends Slider {
   title: string;
-  subtitle: string;
-  image: string;
+  subtitle?: string;
+  image?: string;
 }
 
 export const AdvertiseCard = ({
   title,
   subtitle,
   image,
+  ...props
 }: AdvertiseCardProps) => {
   const color = useThemeColor({ light: '#fff', dark: '#fff' }, 'text');
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={image}
+        source={props.thumbnail}
         alt={title}
         style={styles.image}
         transition={200}
+        contentFit='cover'
       >
         <View style={styles.content}>
           <Text
@@ -31,13 +35,8 @@ export const AdvertiseCard = ({
           >
             {title}
           </Text>
-          <Text
-            style={{
-              color,
-              ...styles.subtitle,
-            }}
-          >
-            {subtitle}
+          <Text style={styles.subtitle}>
+            {new Date(props.created_at).toLocaleDateString()}
           </Text>
         </View>
       </ImageBackground>
@@ -63,7 +62,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.53,
     shadowRadius: 2.62,
     elevation: 4,
-
   },
 
   image: {
@@ -73,14 +71,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   content: {
-    width: '50%',
+    width: '40%',
     paddingHorizontal: 10,
     height: '100%',
     backgroundColor: '#3669C9',
-    borderTopEndRadius: 80,
-    borderBottomEndRadius: 80,
+    borderTopEndRadius: 60,
+    borderBottomEndRadius: 60,
     justifyContent: 'center',
-    alignItems:'flex-start'
+    alignItems: 'flex-start',
   },
   title: {
     fontWeight: 'bold',
@@ -90,5 +88,6 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 12,
     marginTop: 5,
+    color: Colors.dark.text,
   },
 });

@@ -5,13 +5,17 @@ interface CategoryProps {
   title: string;
   bg_color: string;
   padding?: number;
+  width?: number;
+  height?: number;
 }
 
 export const CategoryCard = ({
   title,
   bg_color,
-  padding=10,
+  padding = 10,
   children,
+  width=80,
+  height=80
 }: CategoryProps & PropsWithChildren) => {
   return (
     <View
@@ -23,12 +27,14 @@ export const CategoryCard = ({
     >
       <View
         style={{
-          width: 60,
-          height: 60,
-          borderRadius: 10,
+          width: width,
+          height: height,
+          borderRadius: 100,
+          overflow: 'hidden',
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: bg_color,
+          borderWidth: 1,
+          borderColor:bg_color,
         }}
       >
         {children}
@@ -40,7 +46,7 @@ export const CategoryCard = ({
           fontSize: 12,
         }}
       >
-        {title}
+        {title.length > 12 ? `${title.slice(0, 12)}...` : title}
       </Text>
     </View>
   );
