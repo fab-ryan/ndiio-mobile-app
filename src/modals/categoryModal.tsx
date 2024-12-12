@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useGetCategoriesQuery } from '@/redux';
 import { useSelector } from '../hooks';
+import { useRouter } from 'expo-router';
 
 interface CategoryModalProps {
   isVisible: boolean;
@@ -27,6 +28,7 @@ export const CategoryModal = ({ isVisible, onClose }: CategoryModalProps) => {
     const columnCount = Math.floor(width / 120);
     setNumColumns(columnCount);
   }, []);
+  const router = useRouter();
 
   return (
     <Modal
@@ -57,7 +59,9 @@ export const CategoryModal = ({ isVisible, onClose }: CategoryModalProps) => {
             showsVerticalScrollIndicator={false}
             data={categories ?? []}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => {}}>
+              <TouchableOpacity onPress={() => {
+                router.push(`/category/${item.category.slug}`)
+              }}>
                 <CategoryCard
                   title={item?.category?.name}
                   bg_color={generateRandomColor()}
