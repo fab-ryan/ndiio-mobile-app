@@ -3,6 +3,7 @@ import { SectionTitle, CategoryCard } from '@/src/shared';
 import { CategoriesInterface, imageBaseUrl } from '@/src/utils';
 import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { Categories } from '@/types/categoryTyes';
+import { useRouter } from 'expo-router';
 interface CategoryContainerProps {
   categoriesData: Categories[];
   onPress: () => void;
@@ -11,6 +12,7 @@ export const CategoryContainer = ({
   categoriesData,
   onPress,
 }: CategoryContainerProps) => {
+  const router= useRouter();
   return (
     <View style={styles.categories}>
       <SectionTitle
@@ -28,7 +30,9 @@ export const CategoryContainer = ({
           showsHorizontalScrollIndicator={false}
           data={categoriesData}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => {}}>
+            <TouchableOpacity onPress={() => {
+              router.push(`/category/${item.category.slug}`)
+            }}>
               <CategoryCard
                 title={item.category.name}
                 bg_color={generateRandomColor()}

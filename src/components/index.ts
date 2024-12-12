@@ -8,3 +8,4 @@ export * from './ParallaxScrollView';
 export * from './ThemedModal';
 export * from './ThemedSwiper';
 export * from  './ThemedLoader'
+export * from './ThemedWebView';

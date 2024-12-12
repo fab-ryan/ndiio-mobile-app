@@ -14,7 +14,7 @@ import {
   REHYDRATE,
 } from 'redux-persist';
 // import { persistStore, persistReducer } from 'redux-persist';
-import { sliderApi ,categoryApi} from './services';
+import { sliderApi ,categoryApi, productApi} from './services';
 import { combinedStore } from './combined';
 
 export type ThunkActionType<T = Promise<void>> = ThunkAction<
@@ -35,6 +35,7 @@ export const store = configureStore({
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }).concat(sliderApi.middleware)
+    .concat(productApi.middleware)
     .concat(categoryApi.middleware)
     ,
 });

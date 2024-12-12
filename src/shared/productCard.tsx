@@ -1,13 +1,14 @@
 import { View, Text, Image, Icon } from '@/src/components';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { IconsEnum, ProductInterface } from '@/src/utils';
+import { IconsEnum, imageBaseUrl, ProductInterface } from '@/src/utils';
 import { useThemeColor } from '../hooks';
 import { Colors } from '../constants';
 import { ProductModal } from '../modals/productModal';
 import { useState } from 'react';
+import { Product } from '../types';
 
 interface ProductCardProps {
-  product: ProductInterface;
+  product: Product;
 }
 
 export const ProductCard = ({ product }: ProductCardProps) => {
@@ -29,7 +30,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       />
       <View style={styles.image}>
         <Image
-          source={product.image}
+          source={imageBaseUrl(product?.product_single_img?.product_image)}
           alt={product.title}
           style={{
             width: '100%',
@@ -46,7 +47,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         >
           {productName}
         </Text>
-        <Text style={styles.price}>{product.price}</Text>
+        <Text style={styles.price}>{formatPrice(product.selling_price)}</Text>
       </View>
       <View style={styles.footer}>
         <View
@@ -70,7 +71,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               color: textColor,
             }}
           >
-            {product.rating}
+            {product.avg_rating}
           </Text>
         </View>
         <Text
@@ -79,7 +80,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           }}
           darkColor={Colors.dark.dark_grey}
         >
-          {product.reviews} Reviews
+          {product.total_review} Reviews
         </Text>
         <TouchableOpacity onPress={() => setIsVisible(true)}>
           <Icon
@@ -91,6 +92,13 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       </View>
     </View>
   );
+};
+
+const formatPrice = (price: any) => {
+  return Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(price);
 };
 
 const styles = StyleSheet.create({

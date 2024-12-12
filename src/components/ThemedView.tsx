@@ -54,7 +54,7 @@ export function SafeAreaView({
       style={[
         { backgroundColor },
         style,
-        { paddingLeft: 40, paddingRight: 20 },
+        { paddingLeft: 0, paddingRight: 0 },
       ]}
       {...otherProps}
     />

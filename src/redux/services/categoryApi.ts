@@ -14,7 +14,9 @@ export const categoryApi = createApi({
         url: '/getTopCategories',
         method: 'GET',
       }),
+
     }),
+
   }),
 });
 
