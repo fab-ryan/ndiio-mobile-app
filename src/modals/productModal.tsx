@@ -8,6 +8,9 @@ interface ProductModalProps {
 }
 
 export const ProductModal = ({ isVisible, onClose }: ProductModalProps) => {
+  const handleAddToCart = () =>{
+    
+  }
   return (
     <Modal
       visible={isVisible}

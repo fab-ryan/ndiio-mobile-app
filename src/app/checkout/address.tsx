@@ -134,7 +134,7 @@
 //           router.back();
 //         }}
 //       />
-//       <Loader visible={checkOutState.isLoading} />
+//       <Loader loading={checkOutState.isLoading} />
 //       <View style={styles.container}>
 //         <View style={styles.tabContainer}>
 //           {tabs.map((tab) => (

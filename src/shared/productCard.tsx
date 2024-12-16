@@ -14,9 +14,9 @@ interface ProductCardProps {
 export const ProductCard = ({ product }: ProductCardProps) => {
   const [isVisible, setIsVisible] = useState(false);
   const productName =
-    product.title.length > 18
-      ? product.title.substring(0, 18) + '...'
-      : product.title;
+    product?.title?.length > 18
+      ? product?.title?.substring(0, 18) + '...'
+      : product?.title;
   const textColor = useThemeColor({ light: 'gray', dark: '#000' }, 'text');
   return (
     <View
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    marginVertical: 10,
+    marginVertical: 5,
     width: 180,
     height: 300,
     borderRadius: 10,
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
       width: 0,
       height: 0.1,
     },
-    marginRight: 15,
+    // marginRight: 15,
     padding: 10,
     shadowOpacity: 0.22,
     shadowRadius: 3.22,

@@ -3,23 +3,24 @@ import {
   FlatList,
   Platform,
   StyleSheet,
-} from 'react-native';
+} from "react-native";
 
-import { View, SafeAreaView, SearchInput ,Text} from '@/src/components';
-import { TopBar, AdvertiseCard, BannerCard } from '@/src/shared';
-import { useActions, useForm, useSelector } from '@/src/hooks';
-import { CategoryContainer, ProductContainer } from '@/src/containers';
-import { useEffect, useState } from 'react';
-import { CategoryModal } from '@/src/modals';
+import { View, SafeAreaView, SearchInput, Skeleton } from "@/src/components";
+import { TopBar, AdvertiseCard, BannerCard } from "@/src/shared";
+import { useActions, useForm, useSelector } from "@/src/hooks";
+import { CategoryContainer, ProductContainer } from "@/src/containers";
+import { useEffect, useState } from "react";
+import { CategoryModal } from "@/src/modals";
 import {
   useGetCategoriesQuery,
   useGetSliderQuery,
   useGetProductsMutation,
-} from '@/redux';
-import { useRouter } from 'expo-router';
-import { Colors } from '@/src/constants';
-import React from 'react';
-import { ProductInterface } from '@/src/types';
+} from "@/redux";
+import { useRouter } from "expo-router";
+import { Colors } from "@/src/constants";
+import React from "react";
+import { ProductInterface } from "@/src/types";
+import { CategorySkeleton } from "@/src/skeletons";
 
 const Item = React.memo(
   ({ item, evenIndex }: { item: ProductInterface; evenIndex: boolean }) => {
@@ -28,14 +29,16 @@ const Item = React.memo(
       <ProductContainer
         products={item}
         section_title={item.name}
-        onPressViewAll={() => router.push(`/category/${item.slug}`)}
+        onPressViewAll={() =>
+          router.push(`/category/${item.slug}?details=true`)
+        }
         evenIndex={evenIndex}
       />
     );
-  },
+  }
 );
 
-Item.displayName = 'Item';
+Item.displayName = "Item";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -43,12 +46,12 @@ export default function HomeScreen() {
   const [visibleAllCategories, setVisibleAllCategories] = useState(false);
   const [skip, setSkip] = useState(8);
 
-  const [getProductsMutation] = useGetProductsMutation();
+  const [getProductsMutation, getProductStates] = useGetProductsMutation();
   useGetCategoriesQuery();
   const { products, loadingProducts } = useSelector((state) => state.product);
 
   let _style;
-  if (Platform.OS === 'ios') {
+  if (Platform.OS === "ios") {
     _style = {
       marginBottom: 0,
     };
@@ -60,8 +63,8 @@ export default function HomeScreen() {
 
   const handleGetProducts = () => {
     const formData = new FormData();
-    formData.append('skip', `${skip}`);
-    formData.append('take', '2');
+    formData.append("skip", `${skip}`);
+    formData.append("take", "2");
     getProductsMutation(formData)
       .unwrap()
       .then((res) => {
@@ -71,9 +74,15 @@ export default function HomeScreen() {
         console.log(err);
       });
   };
-const RenderItem = ({ item, index }: { item: ProductInterface; index: number }) => {
-  return (<Item item={item} evenIndex={index % 2 === 0} />);
-}
+  const RenderItem = ({
+    item,
+    index,
+  }: {
+    item: ProductInterface;
+    index: number;
+  }) => {
+    return <Item item={item} evenIndex={index % 2 === 0} />;
+  };
   return (
     <SafeAreaView
       style={{
@@ -81,15 +90,17 @@ const RenderItem = ({ item, index }: { item: ProductInterface; index: number }) 
       }}
     >
       <TopBar />
+
       <FlatList
+        removeClippedSubviews={true}
         style={{ ..._style }}
         ListHeaderComponent={
           <HeaderComponents setVisibleAllCategories={setVisibleAllCategories} />
         }
         data={products?.data ?? []}
-        initialNumToRender={10}  
+        initialNumToRender={10}
         renderItem={({ item, index }) => (
-          <RenderItem item={item} index={index} />
+            <RenderItem item={item} index={index} />
         )}
         keyExtractor={(item) => Math.random().toString()}
         showsVerticalScrollIndicator={false}
@@ -106,23 +117,76 @@ const RenderItem = ({ item, index }: { item: ProductInterface; index: number }) 
           loadingProducts ? (
             <View
               style={{
-                width: '100%',
-                justifyContent: 'center',
-                alignItems: 'center',
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
                 paddingVertical: 10,
               }}
             >
               <ActivityIndicator
-                size='large'
+                size="large"
                 color={
-                  Platform.OS === 'ios' ? Colors.dark.blue : Colors.light.blue
+                  Platform.OS === "ios" ? Colors.dark.blue : Colors.light.blue
                 }
               />
             </View>
           ) : null
         }
       />
-
+      {getProductStates?.isLoading && (
+        <View
+          style={{
+            width: "100%",
+            paddingVertical: 10,
+          }}
+          darkColor={Colors.dark.background}
+          lightColor="#f5f5f5"
+        >
+          <View
+            shouldRasterizeIOS
+            style={{
+              width: "100%",
+              marginTop: 10,
+              backgroundColor: "transparent",
+              justifyContent: "space-between",
+              flexDirection: "row",
+            }}
+          >
+            <Skeleton
+              type="rect"
+              width={100}
+              height={10}
+              style={{ marginTop: 10, marginLeft: 20, borderRadius: 10 }}
+            />
+            <Skeleton
+              type="rect"
+              width={100}
+              height={10}
+              style={{ marginTop: 10, marginLeft: 20, borderRadius: 10 }}
+            />
+          </View>
+          <View
+            style={{
+              width: "100%",
+            }}
+            darkColor={Colors.dark.background}
+            lightColor="#f5f5f5"
+          >
+            <FlatList
+              data={Array().fill(13)}
+              renderItem={() => (
+                <Skeleton
+                  type="rect"
+                  width={180}
+                  height={300}
+                  style={{ marginTop: 20, borderRadius: 10, gap: 10 }}
+                />
+              )}
+              keyExtractor={(item, index) => index.toString()}
+            />
+          </View>
+        </View>
+      )}
       {/* <View
         style={{
           width: '100%',
@@ -167,22 +231,29 @@ interface HeaderComponentsProps {
 const HeaderComponents = ({
   setVisibleAllCategories,
 }: HeaderComponentsProps) => {
-  const { data: slidesData } = useGetSliderQuery();
-  const { categories } = useSelector((state) => state.category);
+  const { data: slidesData, isLoading } = useGetSliderQuery();
+  const { categories, loadingCategories } = useSelector(
+    (state) => state.category
+  );
 
   const { control } = useForm({
-    search: '',
+    search: "",
   });
   return (
     <View style={styles.container}>
-      <SearchInput
-        control={control}
-        placeholder='Search for products'
-      />
+      <SearchInput control={control} placeholder="Search for products" />
+      {isLoading && (
+        <Skeleton
+          type="rect"
+          width="100%"
+          height={170}
+          style={{ marginTop: 10, borderRadius: 10 }}
+        />
+      )}
 
       <View
         style={{
-          width: '100%',
+          width: "100%",
           marginTop: 20,
         }}
       >
@@ -192,28 +263,31 @@ const HeaderComponents = ({
           style={{
             marginTop: 10,
             marginBottom: 10,
-            width: '100%',
+            width: "100%",
           }}
           data={slidesData?.data.slider ?? []}
           renderItem={({ item }) => <AdvertiseCard {...item} />}
         />
       </View>
+
       <CategoryContainer
         categoriesData={categories ?? []}
         onPress={() => setVisibleAllCategories(true)}
+        isLoading={loadingCategories}
       />
+      {loadingCategories && <CategorySkeleton />}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'flex-start',
-    alignItems: 'center',
+    justifyContent: "flex-start",
+    alignItems: "center",
     paddingVertical: 20,
     paddingHorizontal: 10,
   },
   categories: {
-    width: '100%',
+    width: "100%",
   },
 });

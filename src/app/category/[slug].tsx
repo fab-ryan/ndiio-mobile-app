@@ -4,6 +4,7 @@ import {
   View,
   Text,
   SearchInput,
+  Skeleton,
 } from "@/components";
 import { Colors, width } from "@/constants";
 import { useActions, useForm, useSelector } from "@/hooks";
@@ -15,6 +16,7 @@ import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList } from "react-native";
 import { FilterModal } from "@/src/modals";
+import { ProductByCategory, ProductDetails } from "@/src/types";
 
 interface SortInterface {
   sort: string | undefined;
@@ -22,17 +24,18 @@ interface SortInterface {
 
 export default function Category() {
   const { getProductByCategory } = useActions();
-  const { slug } = useLocalSearchParams<{ slug: string }>();
+  const { slug, details } = useLocalSearchParams<{
+    slug: string;
+    details: string;
+  }>();
   const [getProductByCategoryMutaion] = useGetProductByCategoryMutation();
   const [filterVisible, setFilterVisible] = useState(false);
   const [brandcheck, setBrandCheck] = useState<string | undefined>(undefined);
   const [sort, setSort] = useState<string | undefined>(undefined);
   const [maxPrice, setMaxPrice] = useState<number | undefined>(50000);
 
-  const { productsCategory, loadingProductsCategory } = useSelector(
-    (state) => state.product
-  );
-
+  const { productsCategory, loadingProductsCategory, safeProducts } =
+    useSelector((state) => state.product);
   const router = useRouter();
 
   useEffect(() => {
@@ -45,21 +48,32 @@ export default function Category() {
     formData.append("skip", "0");
     formData.append("take", "18");
     formData.append("slug", slug);
-    formData.append("brandcheck", brandcheck || "");
-    formData.append("sort", sort || "");
-    formData.append("maximumP", String(maxPrice));
-    formData.append("minimumP", "0");
-    formData.append("price", "0");
-    getProductByCategoryMutaion(formData)
+    if (details !== "true") {
+      formData.append("brandcheck", brandcheck || "");
+      formData.append("sort", sort || "");
+      formData.append("maximumP", String(maxPrice));
+      formData.append("minimumP", "0");
+      formData.append("price", "0");
+    }
+    getProductByCategoryMutaion({
+      FormData: formData,
+      detailed: details !== "true",
+    })
       .unwrap()
       .then((res) => {
-        getProductByCategory(res);
+        getProductByCategory({
+          detailed: details,
+          productsCategory: res,
+        });
       })
       .catch((err) => {
         console.log(err);
       });
   };
-
+  const data =
+    details === "true"
+      ? (safeProducts as ProductDetails[])[0]?.products
+      : (safeProducts as ProductByCategory[]) ?? [];
   return (
     <SafeAreaView
       style={{
@@ -72,22 +86,28 @@ export default function Category() {
         info={productsCategory}
       />
       <TopBarWithBackButton title="Category" onPress={() => router.back()} />
+
       <FlatList
         ListHeaderComponent={
           <HeaderComponentsList
-            title={productsCategory?.category[0]?.name ?? ""}
+            title={
+              (productsCategory?.category &&
+                productsCategory?.category[0]?.name) ??
+              (safeProducts && (safeProducts as ProductDetails[])[0]?.name) ??
+              ""
+            }
           />
         }
-        data={productsCategory?.data ?? []}
+        data={Array.isArray(data) ? (data as any) : []}
         numColumns={width > 600 ? 3 : width > 400 ? 2 : 1}
         renderItem={({ item }) => (
           <View
             style={{
-              flex: 1,
               backgroundColor: "transparent",
-              width: "50%",
-              marginHorizontal: 15,
-              marginVertical: 0,
+              // width: "50%",
+              marginHorizontal: 10,
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <ProductCard
@@ -102,6 +122,10 @@ export default function Category() {
         contentContainerStyle={{
           flexGrow: 1,
           paddingBottom: 80,
+          backgroundColor: "#f5f5f5",
+          justifyContent: "center",
+          alignItems: "center",
+
         }}
         style={{
           marginBottom: 0,
@@ -111,45 +135,81 @@ export default function Category() {
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
       />
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          height: 80,
-          width: "100%",
-          backgroundColor: "transparent",
-          position: "absolute",
-          bottom: 40,
-          left: 0,
-          right: 0,
-        }}
-      >
-        <Pressable
+
+      {loadingProductsCategory && (
+        <View>
+          <FlatList
+            data={Array.from({ length: 6 })}
+            numColumns={width > 600 ? 3 : width > 400 ? 2 : 1}
+            renderItem={() => (
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: "transparent",
+                  width: "50%",
+                  marginHorizontal: 5,
+                  marginVertical: 5,
+                }}
+              >
+                <Skeleton
+                  style={{
+                    width: "100%",
+                    height: 250,
+                    marginVertical: 5,
+                    borderRadius: 10,
+                  }}
+                  type={"rect"}
+                />
+              </View>
+            )}
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingBottom: 80,
+            }}
+          />
+        </View>
+      )}
+      {details !== "true" && (
+        <View
           style={{
-            borderRadius: 5,
-            alignSelf: "center",
-            width: "70%",
-            paddingVertical: 10,
-            borderWidth: 1,
-            borderColor: Colors.dark.blue,
+            flexDirection: "row",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: Colors.light.background,
+            height: 80,
+            width: "100%",
+            backgroundColor: "transparent",
+            position: "absolute",
+            bottom: 40,
+            left: 0,
+            right: 0,
           }}
-          onPress={() => setFilterVisible(true)}
         >
-          <Text
+          <Pressable
             style={{
-              color: Colors.light.text,
-              fontSize: 14,
-              fontWeight: "bold",
+              borderRadius: 5,
+              alignSelf: "center",
+              width: "70%",
+              paddingVertical: 10,
+              borderWidth: 1,
+              borderColor: Colors.dark.blue,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: Colors.light.background,
             }}
+            onPress={() => setFilterVisible(true)}
           >
-            Filter & Sorting
-          </Text>
-        </Pressable>
-      </View>
+            <Text
+              style={{
+                color: Colors.light.text,
+                fontSize: 14,
+                fontWeight: "bold",
+              }}
+            >
+              Filter & Sorting
+            </Text>
+          </Pressable>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
@@ -188,5 +248,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "flex-start",
     marginBottom: 20,
+    width: width,
   },
 });

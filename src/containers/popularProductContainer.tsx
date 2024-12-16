@@ -45,7 +45,10 @@ export const ProductContainer = ({
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => {
-                  router.navigate(`/product/${item.slug}`);
+                  router.navigate(`/product/${item.slug}?details=true`);
+                }}
+                style={{
+                  marginHorizontal: 5,
                 }}
               >
                 <ProductCard product={item} />
